@@ -4,7 +4,7 @@ VALUES
 ('Daren', 'Curry','1','2'),
 ('William', 'Gray','2','1'),
 ('Janet', 'Reberg','3','3'),
-('William', 'Shakespear','4','4'),
+('William', 'Shakespeare','4','4'),
 ('Edith', 'Rios','4','3');
 
 INSERT INTO employeerole (title,salary,department_id)
