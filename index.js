@@ -31,10 +31,10 @@ function initialMenu() {
         message: "What would you like to do?",
         choices: [
           "Add Department",
-          "view all roles",
+          "View all roles",
           "View all employees",
           "View all departments",
-          "add a role",
+          "Add a role",
           "add an employee",
           "update an employee role",
         ],
@@ -47,7 +47,26 @@ function initialMenu() {
           deptAns.name,
         ]);
       } else if (body.options === "View all departments") {
-        selectFromTable("SELECT * FROM department");
+        console.log(await selectFromTable("SELECT * FROM department"));
+      } else if (body.options === "Add a role") {
+        const roleAns = await addRole();
+        //get all departments
+        const deptRowChoices = await selectFromTable(
+          "SELECT * FROM department"
+        );
+        //loop throught all departments
+        for (let i = 0; i < deptRowChoices.length; i++) {
+          //check for the chosen department in the list of departments
+          if (roleAns.options === deptRowChoices[i].name) {
+            //save id if name is equal
+            insertToTable(
+              "INSERT INTO employeerole (title,salary,department_id) VALUES (?,?,?)",
+              [roleAns.name, roleAns.salary, deptRowChoices[i].id]
+            );
+          }
+        }
+      } else if (body.options === "View all roles") {
+        console.table(await selectFromTable("SELECT * FROM employeerole"));
       }
       initialMenu();
     });
@@ -55,12 +74,13 @@ function initialMenu() {
 
 function selectFromTable(query) {
   const db = dbConnection();
-  db.promise()
+  return db
+    .promise()
     .query(query)
     .then(([rows, fields]) => {
-      console.table(rows);
-    })
-    .then(() => db.end());
+      db.end();
+      return rows;
+    });
 }
 
 function insertToTable(query, params) {
@@ -94,6 +114,48 @@ function addDepartment() {
           return false;
         }
       },
+    },
+  ]);
+}
+
+async function addRole() {
+  const deptRowChoices = await selectFromTable("SELECT * FROM department");
+  const deptChoices = [];
+  for (let i = 0; i < deptRowChoices.length; i++) {
+    deptChoices.push(deptRowChoices[i].name);
+  }
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "name",
+      message: "What is the name of the role?",
+      validate: (roleInput) => {
+        if (roleInput) {
+          return true;
+        } else {
+          console.log("Please enter a name");
+          return false;
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "Please enter salary for the role?",
+      validate: (salaryInput) => {
+        if (salaryInput) {
+          return true;
+        } else {
+          console.log("Please enter salary");
+          return false;
+        }
+      },
+    },
+    {
+      type: "list",
+      name: "options",
+      message: "Please choose department for this role",
+      choices: deptChoices,
     },
   ]);
 }
