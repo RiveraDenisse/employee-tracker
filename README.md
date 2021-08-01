@@ -39,7 +39,7 @@ This application is covered by MIT License. For more information about the licen
 
 ## Video
 
-no testing
+For a video please go [here](https://drive.google.com/file/d/1zFbNkWmTnyHhrb4AckhoLTZFyV_E8tl2/view)
 
 ## Questions
 
