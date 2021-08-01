@@ -66,9 +66,17 @@ function initialMenu() {
           }
         }
       } else if (body.options === "View all roles") {
-        console.table(await selectFromTable("SELECT * FROM employeerole"));
+        console.table(
+          await selectFromTable(
+            "SELECT employeerole.title, employeerole.id, department.name AS department_name, employeerole.salary FROM employeerole LEFT JOIN department ON department.id = employeerole.department_id"
+          )
+        );
       } else if (body.options === "View all employees") {
-        console.table(await selectFromTable("SELECT * FROM employees"));
+        console.table(
+          await selectFromTable(
+            'SELECT employees.id, employees.first_name, employees.last_name, employeerole.title, department.name AS department_name, employeerole.salary, CONCAT(employees.first_name," ",employees.last_name) AS manager FROM employees LEFT JOIN (employeerole,department) ON (employees.role_id = employeerole.id AND employeerole.department_id = department.id)'
+          )
+        );
       } else if (body.options === "Add an employee") {
         const employeeAns = await addEmployee();
         //get all roles to find role_id
@@ -104,6 +112,35 @@ function initialMenu() {
         );
       } else {
         const editEmployeeAns = await editEmployee();
+        const roleRowChoices = await selectFromTable(
+          "SELECT * FROM employeerole"
+        );
+        const employeeRowChoices = await selectFromTable(
+          "SELECT * FROM employees"
+        );
+        let roleid;
+        for (let i = 0; i < roleRowChoices.length; i++) {
+          if (editEmployeeAns.roleOptions === roleRowChoices[i].title) {
+            //save id if name is equal
+            roleid = roleRowChoices[i].id;
+          }
+        }
+        let modifyEmployee;
+        for (let i = 0; i < employeeRowChoices.length; i++) {
+          if (
+            editEmployeeAns.employeeOptions ===
+            employeeRowChoices[i].first_name +
+              " " +
+              employeeRowChoices[i].last_name
+          ) {
+            //save id if name is equal
+            modifyEmployee = employeeRowChoices[i].id;
+          }
+        }
+        insertToTable("UPDATE employees SET role_id = ? WHERE id = ?", [
+          roleid,
+          modifyEmployee,
+        ]);
       }
       initialMenu();
     });

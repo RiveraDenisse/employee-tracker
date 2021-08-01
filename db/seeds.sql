@@ -9,8 +9,8 @@ VALUES
 
 INSERT INTO employeerole (title,salary,department_id)
 VALUES
-('Senior Enginer','150000','1'),
-('Enginer','95000','1'),
+('Senior Engineer','150000','1'),
+('Engineer','95000','1'),
 ('Vice President of Engineering','200000','1'),
 ('Accountant','93000','3'),
 ('HR Generalist','65000','2'),
