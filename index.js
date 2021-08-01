@@ -35,7 +35,7 @@ function initialMenu() {
           "View all employees",
           "View all departments",
           "Add a role",
-          "add an employee",
+          "Add an employee",
           "update an employee role",
         ],
       },
@@ -47,14 +47,14 @@ function initialMenu() {
           deptAns.name,
         ]);
       } else if (body.options === "View all departments") {
-        console.log(await selectFromTable("SELECT * FROM department"));
+        console.table(await selectFromTable("SELECT * FROM department"));
       } else if (body.options === "Add a role") {
         const roleAns = await addRole();
         //get all departments
         const deptRowChoices = await selectFromTable(
           "SELECT * FROM department"
         );
-        //loop throught all departments
+        //loop through all departments
         for (let i = 0; i < deptRowChoices.length; i++) {
           //check for the chosen department in the list of departments
           if (roleAns.options === deptRowChoices[i].name) {
@@ -67,6 +67,43 @@ function initialMenu() {
         }
       } else if (body.options === "View all roles") {
         console.table(await selectFromTable("SELECT * FROM employeerole"));
+      } else if (body.options === "View all employees") {
+        console.table(await selectFromTable("SELECT * FROM employees"));
+      } else if (body.options === "Add an employee") {
+        const employeeAns = await addEmployee();
+        //get all roles to find role_id
+        const roleRowChoices = await selectFromTable(
+          "SELECT * FROM employeerole"
+        );
+        //loop through all roles
+        let roleid;
+        for (let i = 0; i < roleRowChoices.length; i++) {
+          if (employeeAns.roleOptions === roleRowChoices[i].title) {
+            //save id if name is equal
+            roleid = roleRowChoices[i].id;
+          }
+        }
+        const managerRowChoices = await selectFromTable(
+          "SELECT * FROM employees"
+        );
+        let mngrid;
+        for (let i = 0; i < managerRowChoices.length; i++) {
+          if (
+            employeeAns.mngrOptions ===
+            managerRowChoices[i].first_name +
+              " " +
+              managerRowChoices[i].last_name
+          ) {
+            //save id if name is equal
+            mngrid = managerRowChoices[i].id;
+          }
+        }
+        insertToTable(
+          "INSERT INTO employees (first_name,last_name,role_id, manager_id) VALUES (?,?,?,?)",
+          [employeeAns.firstName, employeeAns.lastName, roleid, mngrid]
+        );
+      } else {
+        const editEmployeeAns = await editEmployee();
       }
       initialMenu();
     });
@@ -156,6 +193,88 @@ async function addRole() {
       name: "options",
       message: "Please choose department for this role",
       choices: deptChoices,
+    },
+  ]);
+}
+async function addEmployee() {
+  const roleRowChoices = await selectFromTable("SELECT * FROM employeerole");
+  const managerRowChoices = await selectFromTable("SELECT * FROM employees");
+  const roleChoices = [];
+  const managerChoices = ["none"];
+  for (let i = 0; i < roleRowChoices.length; i++) {
+    roleChoices.push(roleRowChoices[i].title);
+  }
+  for (let i = 0; i < managerRowChoices.length; i++) {
+    managerChoices.push(
+      managerRowChoices[i].first_name + " " + managerRowChoices[i].last_name
+    );
+  }
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "Please enter employee's first name",
+      validate: (firstInput) => {
+        if (firstInput) {
+          return true;
+        } else {
+          console.log("Please enter employee's first name");
+          return false;
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "Please enter employee's last name",
+      validate: (lastNinput) => {
+        if (lastNinput) {
+          return true;
+        } else {
+          console.log("Please enter employee's last name");
+          return false;
+        }
+      },
+    },
+    {
+      type: "list",
+      name: "roleOptions",
+      message: "Please select department for this role",
+      choices: roleChoices,
+    },
+    {
+      type: "list",
+      name: "mngrOptions",
+      message: "Please select a manager",
+      choices: managerChoices,
+    },
+  ]);
+}
+async function editEmployee() {
+  const employeeRowChoices = await selectFromTable("SELECT * FROM employees");
+  const employeeChoices = [];
+  const roleRowChoices = await selectFromTable("SELECT * FROM employeerole");
+  const roleChoices = [];
+  for (let i = 0; i < employeeRowChoices.length; i++) {
+    employeeChoices.push(
+      employeeRowChoices[i].first_name + " " + employeeRowChoices[i].last_name
+    );
+  }
+  for (let i = 0; i < roleRowChoices.length; i++) {
+    roleChoices.push(roleRowChoices[i].title);
+  }
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "employeeOptions",
+      message: "Please select employee you would like to modify",
+      choices: employeeChoices,
+    },
+    {
+      type: "list",
+      name: "roleOptions",
+      message: "Please choose a role",
+      choices: roleChoices,
     },
   ]);
 }
