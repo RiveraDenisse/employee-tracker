@@ -20,9 +20,9 @@ function dbConnection() {
 
 function initialMenu() {
   console.log(`
-    ===============
-    TEAM
-    ==================`);
+    ||||||||||||||||||||
+    ||      TEAM      ||
+    ||||||||||||||||||||`);
   inquirer
     .prompt([
       {
@@ -37,6 +37,7 @@ function initialMenu() {
           "Add a role",
           "Add an employee",
           "update an employee role",
+          "Exit",
         ],
       },
     ])
@@ -74,7 +75,7 @@ function initialMenu() {
       } else if (body.options === "View all employees") {
         console.table(
           await selectFromTable(
-            'SELECT employees.id, employees.first_name, employees.last_name, employeerole.title, department.name AS department_name, employeerole.salary, CONCAT(employees.first_name," ",employees.last_name) AS manager FROM employees LEFT JOIN (employeerole,department) ON (employees.role_id = employeerole.id AND employeerole.department_id = department.id)'
+            'SELECT emp1.id, emp1.first_name, emp1.last_name, employeerole.title, department.name AS department_name, employeerole.salary, CONCAT(emp2.first_name," ",emp2.last_name) AS manager FROM employees AS emp1 LEFT JOIN employees AS emp2 ON emp1.manager_id = emp2.id LEFT JOIN (employeerole,department) ON (emp1.role_id = employeerole.id AND employeerole.department_id = department.id)'
           )
         );
       } else if (body.options === "Add an employee") {
@@ -110,7 +111,7 @@ function initialMenu() {
           "INSERT INTO employees (first_name,last_name,role_id, manager_id) VALUES (?,?,?,?)",
           [employeeAns.firstName, employeeAns.lastName, roleid, mngrid]
         );
-      } else {
+      } else if (body.options === "update an employee role") {
         const editEmployeeAns = await editEmployee();
         const roleRowChoices = await selectFromTable(
           "SELECT * FROM employeerole"
@@ -141,6 +142,8 @@ function initialMenu() {
           roleid,
           modifyEmployee,
         ]);
+      } else {
+        return;
       }
       initialMenu();
     });

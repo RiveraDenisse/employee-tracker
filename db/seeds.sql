@@ -1,11 +1,9 @@
-INSERT INTO employees (first_name,last_name,role_id,manager_id)
+INSERT INTO department (name)
 VALUES
-('Denisse', 'Rivera','2','1'),
-('Daren', 'Curry','1','2'),
-('William', 'Gray','2','1'),
-('Janet', 'Reberg','3','3'),
-('William', 'Shakespeare','4','4'),
-('Edith', 'Rios','4','3');
+('Engineering'),
+('HR'),
+('Finance'),
+('Staking');
 
 INSERT INTO employeerole (title,salary,department_id)
 VALUES
@@ -16,9 +14,12 @@ VALUES
 ('HR Generalist','65000','2'),
 ('Utility Designer','60000','4');
 
-INSERT INTO department (name)
+INSERT INTO employees (first_name,last_name,role_id,manager_id)
 VALUES
-('Engineering'),
-('HR'),
-('Finance'),
-('Staking');
+('Denisse', 'Rivera','2', NULL),
+('Daren', 'Curry','1','1'),
+('William', 'Gray','2','2'),
+('Janet', 'Reberg','3','3'),
+('William', 'Shakespeare','4','4'),
+('Edith', 'Rios','4','3');
+
